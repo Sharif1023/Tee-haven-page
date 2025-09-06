@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Cinematic Landing Page</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(180deg, #e0f7fa, #f5f5f5);
+  overflow-x: hidden;
+}
+
+/* Parallax background */
+.parallax {
+  position: absolute;
+  width: 100%;
+  height: 120%;
+  top: 0;
+  left: 0;
+  background: url('https://via.placeholder.com/1920x1080') center/cover no-repeat;
+  z-index: 0;
+  transform: translateY(0);
+  transition: transform 0.1s linear;
+}
+
+.perspective {
+  perspective: 1500px;
+  position: relative;
+  z-index: 10;
+}
+
+.image-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  position: absolute;
+  bottom: 0;
+  opacity: 0;
+}
+
+/* Floating animation after entrance */
+@keyframes float {
+  0% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
+  50% { transform: translateY(-10px) rotateY(0deg) rotateX(0deg); }
+  100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
+}
+
+/* Cinematic entrance animations */
+@keyframes cinematicLeft {
+  0% { transform: translateX(-400px) rotateY(-60deg) rotateX(20deg); opacity: 0; }
+  100% { transform: translateX(-120px) rotateY(-20deg) rotateX(5deg); opacity: 1; }
+}
+
+@keyframes cinematicCenter {
+  0% { transform: translateY(400px) rotateY(0deg) rotateX(20deg); opacity: 0; }
+  100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); opacity: 1; }
+}
+
+@keyframes cinematicRight {
+  0% { transform: translateX(400px) rotateY(60deg) rotateX(-20deg); opacity: 0; }
+  100% { transform: translateX(120px) rotateY(20deg) rotateX(-5deg); opacity: 1; }
+}
+
+.image-left {
+  left: -120px;
+  z-index: 10;
+  animation: cinematicLeft 1s ease forwards, float 4s ease-in-out infinite alternate 1s;
+}
+
+.image-center {
+  left: 0;
+  z-index: 20;
+  animation: cinematicCenter 1s ease 0.3s forwards, float 4s ease-in-out infinite alternate 1.3s;
+}
+
+.image-right {
+  left: 120px;
+  z-index: 10;
+  animation: cinematicRight 1s ease 0.6s forwards, float 4s ease-in-out infinite alternate 1.6s;
+}
+
+/* Hover effect */
+.image-3d:hover {
+  transform: rotateY(0deg) rotateX(0deg) scale(1.05);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  z-index: 30;
+  animation-play-state: paused;
+}
+</style>
+</head>
+<body>
+
+<!-- Parallax background -->
+<div class="parallax"></div>
+
+<section class="px-6 md:px-12 py-16 flex flex-col md:flex-row gap-12 relative z-10">
+
+  <!-- Left: Sticky Shop Name & Details -->
+  <div class="md:w-5/12 sticky top-10 self-start text-center md:text-left space-y-6">
+    <h1 class="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg">
+      Tee Haven
+    </h1>
+    <p class="text-gray-700 text-lg md:text-xl leading-relaxed max-w-md">
+      ✨ Discover our <span class="font-semibold text-blue-600">premium t-shirt collection</span> crafted for ultimate comfort and style.
+    </p>
+    <button class="mt-6 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-2xl shadow-2xl hover:scale-105 hover:shadow-pink-300/50 transition-transform duration-300">
+      Shop Tees Now
+    </button>
+  </div>
+
+  <!-- Right: 3D Staggered T-Shirt Images + Info -->
+  <div class="md:w-7/12 perspective relative h-[500px] flex justify-center items-end">
+
+    <!-- Ultra-Exclusive Floating Banner -->
+    <div class="absolute top-16 right-12 p-6 w-80 text-gray-900 z-40">
+      <h3 class="text-xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+        Why Our Tees Are Special
+      </h3>
+      <p class="text-sm leading-relaxed mb-1">✨ Soft cotton t-shirts designed for all-day comfort</p>
+      <p class="text-sm leading-relaxed mb-1">🎨 Unique and stylish designs you won’t find anywhere else</p>
+      <p class="text-sm leading-relaxed mb-1">💎 Perfect fit for every body shape and size</p>
+      <p class="text-sm leading-relaxed">🧵 Durable fabric that stays vibrant wash after wash</p>
+    </div>
+
+    <img src="image/1.webp" alt="Left T-Shirt" class="image-3d image-left w-56 hover:scale-105 transition duration-500">
+    <img src="image/2.webp" alt="Center T-Shirt" class="image-3d image-center w-64 z-10 hover:scale-110 transition duration-500">
+    <img src="image/3.jpeg" alt="Right T-Shirt" class="image-3d image-right w-56 hover:scale-105 transition duration-500">
+  </div>
+
+</section>
+
+
+
+
+
+<!-- Product Info Cards under Images -->
+<div class="relative z-20 px-6 md:px-12 mt-10 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+  <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
+    <h3 class="text-xl font-semibold text-blue-600">Classic Tee</h3>
+    <p class="text-gray-600 mt-2">Soft cotton t-shirt perfect for daily wear. Available in multiple colors.</p>
+    <p class="mt-3 font-bold text-lg text-gray-800">$25.00</p>
+  </div>
+  <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
+    <h3 class="text-xl font-semibold text-purple-600">Premium Hoodie</h3>
+    <p class="text-gray-600 mt-2">Stay cozy with our premium hoodie made with warm fleece inside.</p>
+    <p class="mt-3 font-bold text-lg text-gray-800">$49.00</p>
+  </div>
+  <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
+    <h3 class="text-xl font-semibold text-pink-600">Sporty Jacket</h3>
+    <p class="text-gray-600 mt-2">Lightweight sporty jacket for all weather. Stylish and durable.</p>
+    <p class="mt-3 font-bold text-lg text-gray-800">$65.00</p>
+  </div>
+</div>
+
+<script>
+  // Scroll-based parallax effect
+  const parallax = document.querySelector('.parallax');
+  window.addEventListener('scroll', () => {
+    const offset = window.scrollY;
+    parallax.style.transform = `translateY(${offset * 0.3}px)`; 
+  });
+</script>
+
+</body>
+</html>
