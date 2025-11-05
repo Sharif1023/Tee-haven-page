@@ -1,168 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>3D Cinematic Landing Page</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(180deg, #e0f7fa, #f5f5f5);
-  overflow-x: hidden;
-}
+  :root{
+    --stage-w: 720px;
+    --stage-h: 500px;
+  }
 
-/* Parallax background */
-.parallax {
-  position: absolute;
-  width: 100%;
-  height: 120%;
-  top: 0;
-  left: 0;
-  background: url('https://via.placeholder.com/1920x1080') center/cover no-repeat;
-  z-index: 0;
-  transform: translateY(0);
-  transition: transform 0.1s linear;
-}
+  html { scroll-behavior: smooth; }
 
-.perspective {
-  perspective: 1500px;
-  position: relative;
-  z-index: 10;
-}
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(180deg, #e0f7fa, #f5f5f5);
+    overflow-x: hidden;
+    scroll-snap-type: y mandatory;
+  }
 
-.image-3d {
-  transform-style: preserve-3d;
-  transition: transform 0.6s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-  position: absolute;
-  bottom: 0;
-  opacity: 0;
-}
+  section.snap { scroll-snap-align: start; scroll-snap-stop: always; }
 
-/* Floating animation after entrance */
-@keyframes float {
-  0% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
-  50% { transform: translateY(-10px) rotateY(0deg) rotateX(0deg); }
-  100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
-}
+  /* Parallax */
+  .parallax {
+    position: fixed;
+    width: 100%;
+    height: 120%;
+    top: 0; left: 0;
+    background: url('https://via.placeholder.com/1920x1080') center/cover no-repeat;
+    z-index: 0;
+    transform: translateY(0);
+    transition: transform 0.1s linear;
+    opacity: .22;
+    pointer-events: none;
+  }
 
-/* Cinematic entrance animations */
-@keyframes cinematicLeft {
-  0% { transform: translateX(-400px) rotateY(-60deg) rotateX(20deg); opacity: 0; }
-  100% { transform: translateX(-120px) rotateY(-20deg) rotateX(5deg); opacity: 1; }
-}
+  .perspective {
+    perspective: 1500px;
+    position: relative;
+    z-index: 10;
+    width: var(--stage-w);
+    height: var(--stage-h);
+    transform-origin: top center;
+  }
 
-@keyframes cinematicCenter {
-  0% { transform: translateY(400px) rotateY(0deg) rotateX(20deg); opacity: 0; }
-  100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); opacity: 1; }
-}
+  .image-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease, box-shadow 0.3s ease, opacity .35s ease;
+    cursor: pointer;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    position: absolute;
+    bottom: 0;
+    opacity: 0;
+  }
 
-@keyframes cinematicRight {
-  0% { transform: translateX(400px) rotateY(60deg) rotateX(-20deg); opacity: 0; }
-  100% { transform: translateX(120px) rotateY(20deg) rotateX(-5deg); opacity: 1; }
-}
+  @keyframes float { 0% {transform: translateY(0);} 50% {transform: translateY(-10px);} 100% {transform: translateY(0);} }
+  @keyframes cinematicLeft { 0%{transform: translateX(-400px) rotateY(-60deg) rotateX(20deg); opacity:0;} 100%{transform: translateX(-120px) rotateY(-20deg) rotateX(5deg); opacity:1;} }
+  @keyframes cinematicCenter { 0%{transform: translateY(400px) rotateX(20deg); opacity:0;} 100%{transform: translateY(0) rotateX(0deg); opacity:1;} }
+  @keyframes cinematicRight { 0%{transform: translateX(400px) rotateY(60deg) rotateX(-20deg); opacity:0;} 100%{transform: translateX(120px) rotateY(20deg) rotateX(-5deg); opacity:1;} }
 
-.image-left {
-  left: -120px;
-  z-index: 10;
-  animation: cinematicLeft 1s ease forwards, float 4s ease-in-out infinite alternate 1s;
-}
+  .image-left  { left: -120px; animation: cinematicLeft 1s ease forwards, float 4s ease-in-out infinite alternate 1s; }
+  .image-center{ left: 0; z-index: 20; animation: cinematicCenter 1s ease .3s forwards, float 4s ease-in-out infinite alternate 1.3s; }
+  .image-right { left: 120px;  animation: cinematicRight 1s ease .6s forwards, float 4s ease-in-out infinite alternate 1.6s; }
 
-.image-center {
-  left: 0;
-  z-index: 20;
-  animation: cinematicCenter 1s ease 0.3s forwards, float 4s ease-in-out infinite alternate 1.3s;
-}
+  .image-3d:hover {
+    transform: rotateY(0deg) rotateX(0deg) scale(1.05);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+    z-index: 30;
+    animation-play-state: paused;
+  }
 
-.image-right {
-  left: 120px;
-  z-index: 10;
-  animation: cinematicRight 1s ease 0.6s forwards, float 4s ease-in-out infinite alternate 1.6s;
-}
+  /* Mobile tweaks */
+  @media (max-width: 768px){
+    section.px-6 { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+    .image-left  { width: 200px !important; left: -110px; }
+    .image-center{ width: 240px !important; }
+    .image-right { width: 200px !important; left: 120px; }
+  }
 
-/* Hover effect */
-.image-3d:hover {
-  transform: rotateY(0deg) rotateX(0deg) scale(1.05);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-  z-index: 30;
-  animation-play-state: paused;
-}
+  /* Compact mobile banner */
+  .info-banner-mobile{
+    background: rgba(255,255,255,.9);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+  }
+
+  /* One-line clamp on mobile, full on md+ */
+  .mobile-clamp{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media (min-width: 768px){
+    .mobile-clamp{
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .parallax{ transition: none; transform: none !important; }
+    .image-3d{ animation: none !important; transition: none !important; }
+  }
 </style>
 </head>
 <body>
 
-<!-- Parallax background -->
 <div class="parallax"></div>
 
-<section class="px-6 md:px-12 py-16 flex flex-col md:flex-row gap-12 relative z-10">
+<!-- HERO -->
+<header id="hero" class="snap relative z-10 min-h-screen flex items-center">
+  <section class="px-6 md:px-12 w-full py-12 md:py-16 flex flex-col md:flex-row gap-12 relative">
 
-  <!-- Left: Sticky Shop Name & Details -->
-  <div class="md:w-5/12 sticky top-10 self-start text-center md:text-left space-y-6">
-    <h1 class="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg">
-      Tee Haven
-    </h1>
-    <p class="text-gray-700 text-lg md:text-xl leading-relaxed max-w-md">
-      ✨ Discover our <span class="font-semibold text-blue-600">premium t-shirt collection</span> crafted for ultimate comfort and style.
-    </p>
-    <button class="mt-6 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-2xl shadow-2xl hover:scale-105 hover:shadow-pink-300/50 transition-transform duration-300">
-      Shop Tees Now
-    </button>
-  </div>
+    <!-- Left content -->
+    <div class="md:w-5/12 md:sticky md:top-10 self-start text-center md:text-left space-y-6">
+      <h1 class="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg">
+        Tee Haven
+      </h1>
+      <p class="text-gray-700 text-lg md:text-xl leading-relaxed max-w-md mx-auto md:mx-0">
+        ✨ Discover our <span class="font-semibold text-blue-600">premium t-shirt collection</span> crafted for ultimate comfort and style.
+      </p>
 
-  <!-- Right: 3D Staggered T-Shirt Images + Info -->
-  <div class="md:w-7/12 perspective relative h-[500px] flex justify-center items-end">
+      <!-- Button + mobile info banner -->
+      <div class="flex flex-row flex-wrap items-start justify-center md:justify-start gap-4 mt-6">
+        <button class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-2xl shadow-2xl hover:scale-105 hover:shadow-pink-300/50 transition-transform duration-300">
+          Shop Tees Now
+        </button>
 
-    <!-- Ultra-Exclusive Floating Banner -->
-    <div class="absolute top-16 right-12 p-6 w-80 text-gray-900 z-40">
-      <h3 class="text-xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-        Why Our Tees Are Special
-      </h3>
-      <p class="text-sm leading-relaxed mb-1">✨ Soft cotton t-shirts designed for all-day comfort</p>
-      <p class="text-sm leading-relaxed mb-1">🎨 Unique and stylish designs you won’t find anywhere else</p>
-      <p class="text-sm leading-relaxed mb-1">💎 Perfect fit for every body shape and size</p>
-      <p class="text-sm leading-relaxed">🧵 Durable fabric that stays vibrant wash after wash</p>
+        <!-- Mobile info banner (to the right of button) -->
+        <div class="info-banner-mobile md:hidden p-3 w-48 text-gray-900">
+          <h3 class="text-base font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
+            Why Our Tees Are Special
+          </h3>
+          <p class="text-xs leading-relaxed mb-1">✨ Soft cotton t-shirts for all-day comfort</p>
+          <p class="text-xs leading-relaxed mb-1">🎨 Unique, stylish designs</p>
+          <p class="text-xs leading-relaxed mb-1">💎 Great fit for every body</p>
+          <p class="text-xs leading-relaxed">🧵 Colors that stay vibrant</p>
+        </div>
+      </div>
     </div>
 
-    <img src="image/1.webp" alt="Left T-Shirt" class="image-3d image-left w-56 hover:scale-105 transition duration-500">
-    <img src="image/2.webp" alt="Center T-Shirt" class="image-3d image-center w-64 z-10 hover:scale-110 transition duration-500">
-    <img src="image/3.jpeg" alt="Right T-Shirt" class="image-3d image-right w-56 hover:scale-105 transition duration-500">
-  </div>
+    <!-- Right: 3D Stage -->
+    <div class="md:w-7/12 perspective stage relative h-[500px] flex justify-center items-end">
 
+      <!-- Floating desktop info banner -->
+      <div class="absolute top-16 right-12 p-6 w-80 text-gray-900 z-40 info-banner hidden md:block">
+        <h3 class="text-xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+          Why Our Tees Are Special
+        </h3>
+        <p class="text-sm leading-relaxed mb-1">✨ Soft cotton t-shirts designed for all-day comfort</p>
+        <p class="text-sm leading-relaxed mb-1">🎨 Unique and stylish designs you won’t find anywhere else</p>
+        <p class="text-sm leading-relaxed mb-1">💎 Perfect fit for every body shape and size</p>
+        <p class="text-sm leading-relaxed">🧵 Durable fabric that stays vibrant wash after wash</p>
+      </div>
+
+      <img src="image/1.webp" alt="Left T-Shirt" class="image-3d image-left w-56 hover:scale-105 transition duration-500">
+      <img src="image/2.webp" alt="Center T-Shirt" class="image-3d image-center w-64 z-10 hover:scale-110 transition duration-500">
+      <img src="image/3.jpeg" alt="Right T-Shirt" class="image-3d image-right w-56 hover:scale-105 transition duration-500">
+    </div>
+  </section>
+</header>
+
+<!-- PRODUCTS (compact mobile with 'See more') -->
+<section id="products" class="snap relative z-20 py-20 bg-gradient-to-b from-white to-gray-50">
+  <div class="px-4 md:px-12 mt-2 max-w-6xl mx-auto grid grid-cols-3 gap-3 md:gap-6">
+
+    <!-- Card 1 -->
+    <div class="bg-white rounded-xl shadow p-3 md:p-6 hover:shadow-2xl transition duration-300 text-center">
+      <img src="image/1.webp" alt="Classic Tee" class="w-full aspect-square object-cover rounded-lg mb-2 md:mb-3">
+      <h3 class="text-sm md:text-lg font-semibold text-blue-600">Classic Tee</h3>
+
+      <p id="desc-1" class="mobile-clamp text-xs md:text-base text-gray-600 mt-1 md:mt-2 leading-relaxed">
+        Soft cotton t-shirt perfect for daily wear. Available in multiple colors and fits.
+      </p>
+      <button class="see-more md:hidden text-[11px] mt-1 text-blue-700/90 hover:underline" data-target="desc-1">See more</button>
+
+      <p class="mt-2 md:mt-3 font-bold text-sm md:text-lg text-gray-800">$25.00</p>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="bg-white rounded-xl shadow p-3 md:p-6 hover:shadow-2xl transition duration-300 text-center">
+      <img src="image/2.webp" alt="Premium Hoodie" class="w-full aspect-square object-cover rounded-lg mb-2 md:mb-3">
+      <h3 class="text-sm md:text-lg font-semibold text-purple-600">Premium Hoodie</h3>
+
+      <p id="desc-2" class="mobile-clamp text-xs md:text-base text-gray-600 mt-1 md:mt-2 leading-relaxed">
+        Stay cozy with our premium fleece hoodie made for warmth, durability, and comfort.
+      </p>
+      <button class="see-more md:hidden text-[11px] mt-1 text-purple-700/90 hover:underline" data-target="desc-2">See more</button>
+
+      <p class="mt-2 md:mt-3 font-bold text-sm md:text-lg text-gray-800">$49.00</p>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="bg-white rounded-xl shadow p-3 md:p-6 hover:shadow-2xl transition duration-300 text-center">
+      <img src="image/3.jpeg" alt="Sporty Jacket" class="w-full aspect-square object-cover rounded-lg mb-2 md:mb-3">
+      <h3 class="text-sm md:text-lg font-semibold text-pink-600">Sporty Jacket</h3>
+
+      <p id="desc-3" class="mobile-clamp text-xs md:text-base text-gray-600 mt-1 md:mt-2 leading-relaxed">
+        Lightweight, weather-resistant jacket for all seasons. Stylish, durable, and made for movement.
+      </p>
+      <button class="see-more md:hidden text-[11px] mt-1 text-pink-700/90 hover:underline" data-target="desc-3">See more</button>
+
+      <p class="mt-2 md:mt-3 font-bold text-sm md:text-lg text-gray-800">$65.00</p>
+    </div>
+
+  </div>
 </section>
 
-
-
-
-
-<!-- Product Info Cards under Images -->
-<div class="relative z-20 px-6 md:px-12 mt-10 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-  <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
-    <h3 class="text-xl font-semibold text-blue-600">Classic Tee</h3>
-    <p class="text-gray-600 mt-2">Soft cotton t-shirt perfect for daily wear. Available in multiple colors.</p>
-    <p class="mt-3 font-bold text-lg text-gray-800">$25.00</p>
-  </div>
-  <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
-    <h3 class="text-xl font-semibold text-purple-600">Premium Hoodie</h3>
-    <p class="text-gray-600 mt-2">Stay cozy with our premium hoodie made with warm fleece inside.</p>
-    <p class="mt-3 font-bold text-lg text-gray-800">$49.00</p>
-  </div>
-  <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
-    <h3 class="text-xl font-semibold text-pink-600">Sporty Jacket</h3>
-    <p class="text-gray-600 mt-2">Lightweight sporty jacket for all weather. Stylish and durable.</p>
-    <p class="mt-3 font-bold text-lg text-gray-800">$65.00</p>
-  </div>
-</div>
-
 <script>
-  // Scroll-based parallax effect
+  // Parallax
   const parallax = document.querySelector('.parallax');
-  window.addEventListener('scroll', () => {
-    const offset = window.scrollY;
-    parallax.style.transform = `translateY(${offset * 0.3}px)`; 
+  function onScroll() { parallax.style.transform = `translateY(${window.scrollY * 0.22}px)`; }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Fade-in
+  const imgs = document.querySelectorAll('.image-3d');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.style.opacity = 1; });
+  }, { threshold: 0.2 });
+  imgs.forEach(i => io.observe(i));
+
+  // Scale 3D stage
+  const stage = document.querySelector('.stage');
+  function scaleStage() {
+    const baseW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--stage-w')) || 720;
+    const available = Math.min(window.innerWidth - 32, stage.parentElement.clientWidth);
+    const scale = Math.min(available / baseW, 1);
+    stage.style.transform = `scale(${scale})`;
+    stage.style.margin = '0 auto';
+  }
+  window.addEventListener('resize', scaleStage, { passive: true });
+  scaleStage();
+
+  // Mobile "See more / See less"
+  document.querySelectorAll('.see-more').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-target');
+      const p = document.getElementById(id);
+      const expanded = btn.getAttribute('data-expanded') === 'true';
+
+      if (expanded) {
+        p.classList.add('mobile-clamp');
+        btn.textContent = 'See more';
+        btn.setAttribute('data-expanded', 'false');
+      } else {
+        p.classList.remove('mobile-clamp');
+        btn.textContent = 'See less';
+        btn.setAttribute('data-expanded', 'true');
+      }
+    });
   });
 </script>
 
