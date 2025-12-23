@@ -1,192 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Tee Haven</title>
 <script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
 <style>
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(180deg, #e0f7fa, #f5f5f5);
-    overflow-x: hidden;
-    transform-origin: top left;
+  :root{
+    --glass: rgba(255,255,255,.62);
+    --glassBorder: rgba(255,255,255,.55);
+    --shadow: 0 24px 60px rgba(0,0,0,.12);
+  }
+  html, body { height: 100%; }
+  body{
+    margin:0;
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: radial-gradient(1200px 700px at 10% 10%, rgba(99,102,241,.20), transparent 55%),
+                radial-gradient(900px 600px at 90% 10%, rgba(236,72,153,.18), transparent 55%),
+                radial-gradient(900px 600px at 50% 100%, rgba(34,211,238,.18), transparent 55%),
+                linear-gradient(180deg, #e9fbff, #f6f7fb);
+    overflow-x:hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Scale system */
-  .scale-wrapper {
-    width: 1920px; /* desktop base width */
-    margin: 0 auto;
-    transform-origin: top left;
-  }
-
-  /* Parallax background */
-  .parallax {
-    position: absolute;
-    width: 100%;
-    height: 120%;
-    top: 0;
-    left: 0;
-    background: url('https://via.placeholder.com/1920x1080') center/cover no-repeat;
+  .noise:before{
+    content:"";
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+    opacity: .20;
+    pointer-events:none;
+    mix-blend-mode: overlay;
     z-index: 0;
-    transform: translateY(0);
-    transition: transform 0.1s linear;
   }
 
+  /* Parallax */
+  .parallax-wrap{ position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+  .parallax-layer{ position:absolute; inset:-10%; will-change: transform; transform: translate3d(0,0,0); }
+  .layer-1{
+    background: radial-gradient(900px 600px at 20% 20%, rgba(59,130,246,.18), transparent 60%),
+                radial-gradient(800px 520px at 85% 30%, rgba(168,85,247,.16), transparent 60%),
+                radial-gradient(900px 600px at 55% 90%, rgba(34,211,238,.14), transparent 60%);
+    filter: blur(2px);
+  }
+  .layer-2{
+    background: conic-gradient(from 180deg at 50% 50%,
+                rgba(255,255,255,.55), rgba(255,255,255,0), rgba(255,255,255,.45), rgba(255,255,255,0));
+    opacity:.45;
+    filter: blur(16px);
+  }
 
-  .perspective {
-    perspective: 1500px;
+  /* Entrance */
+  @keyframes riseIn{
+    0%{ opacity:0; transform: translateY(18px); filter: blur(6px); }
+    100%{ opacity:1; transform: translateY(0); filter: blur(0); }
+  }
+  .enter{ animation: riseIn .9s cubic-bezier(.2,.8,.2,1) both; }
+  .enter-delay-1{ animation-delay: .08s; }
+  .enter-delay-2{ animation-delay: .16s; }
+
+  /* 3D stage */
+  .perspective{ perspective: 1400px; position: relative; }
+
+  /* ✅ gap কমানোর জন্য stage height আরও কম */
+  .stage{
     position: relative;
-    z-index: 10;
+    height: 450px; /* was 480/520 */
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    isolation: isolate;
   }
 
-  .image-3d {
+  .base-glow{
+    position:absolute;
+    left:50%;
+    transform: translateX(-50%);
+    bottom: 10px;
+    width: 520px;
+    height: 130px;
+    border-radius: 999px;
+    filter: blur(48px);
+    opacity: .40;
+    background: radial-gradient(circle, rgba(99,102,241,.35), rgba(236,72,153,.22), rgba(34,211,238,.18), transparent 70%);
+    pointer-events:none;
+  }
+
+  .image-3d{
     transform-style: preserve-3d;
-    transition: transform 0.6s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    will-change: transform;
+    transition: transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, filter .35s ease;
+    cursor:pointer;
+    border-radius: 18px;
+    box-shadow: 0 18px 42px rgba(0,0,0,.16);
     position: absolute;
-    bottom: 0;
-    opacity: 0;
+
+    /* ✅ images উপরে: bottom বাড়ানো */
+    bottom: 22px;
+
+    opacity: 0; /* animation start before visible */
+    filter: saturate(1.02) contrast(1.02);
   }
 
-  /* Floating animation */
   @keyframes float {
-    0% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
-    50% { transform: translateY(-10px) rotateY(0deg) rotateX(0deg); }
-    100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
+    0% { transform: translate3d(var(--tx,0), 0, 0) rotateY(var(--ry,0)) rotateX(var(--rx,0)); }
+    50%{ transform: translate3d(var(--tx,0), -10px, 0) rotateY(var(--ry,0)) rotateX(var(--rx,0)); }
+    100%{ transform: translate3d(var(--tx,0), 0, 0) rotateY(var(--ry,0)) rotateX(var(--rx,0)); }
+  }
+  @keyframes cinematicIn{
+    0%{ transform: translate3d(var(--fromx,0), var(--fromy,120px), 0) rotateY(var(--fromry,0)) rotateX(var(--fromrx,12deg)); opacity:0; }
+    100%{ transform: translate3d(var(--tx,0), 0, 0) rotateY(var(--ry,0)) rotateX(var(--rx,0)); opacity:1; }
   }
 
-  @keyframes cinematicLeft {
-    0% { transform: translateX(-400px) rotateY(-60deg) rotateX(20deg); opacity: 0; }
-    100% { transform: translateX(-120px) rotateY(-20deg) rotateX(5deg); opacity: 1; }
-  }
-  @keyframes cinematicCenter {
-    0% { transform: translateY(400px) rotateY(0deg) rotateX(20deg); opacity: 0; }
-    100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); opacity: 1; }
-  }
-  @keyframes cinematicRight {
-    0% { transform: translateX(400px) rotateY(60deg) rotateX(-20deg); opacity: 0; }
-    100% { transform: translateX(120px) rotateY(20deg) rotateX(-5deg); opacity: 1; }
-  }
-
-  .image-left {
-    left: -120px;
+  /* ✅ variables only (animation will start when .stage.is-live added) */
+  .img-left{
+    --tx:-140px; --ry:-18deg; --rx:6deg;
+    --fromx:-420px; --fromy:80px; --fromry:-60deg; --fromrx:18deg;
     z-index: 10;
-    animation: cinematicLeft 1s ease forwards, float 4s ease-in-out infinite alternate 1s;
   }
-  .image-center {
-    left: 0;
+  .img-center{
+    --tx:0px; --ry:0deg; --rx:0deg;
+    --fromx:0px; --fromy:320px; --fromry:0deg; --fromrx:16deg;
     z-index: 20;
-    animation: cinematicCenter 1s ease 0.3s forwards, float 4s ease-in-out infinite alternate 1.3s;
   }
-  .image-right {
-    left: 120px;
+  .img-right{
+    --tx:140px; --ry:18deg; --rx:-6deg;
+    --fromx:420px; --fromy:80px; --fromry:60deg; --fromrx:-18deg;
     z-index: 10;
-    animation: cinematicRight 1s ease 0.6s forwards, float 4s ease-in-out infinite alternate 1.6s;
   }
 
-  .image-3d:hover {
-    transform: rotateY(0deg) rotateX(0deg) scale(1.05);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  /* ✅ Animation starts only when stage becomes live */
+  .stage.is-live .img-left{
+    animation: cinematicIn .95s cubic-bezier(.2,.8,.2,1) forwards,
+               float 4.2s ease-in-out infinite alternate 1s;
+  }
+  .stage.is-live .img-center{
+    animation: cinematicIn .95s cubic-bezier(.2,.8,.2,1) .14s forwards,
+               float 4.2s ease-in-out infinite alternate 1.25s;
+  }
+  .stage.is-live .img-right{
+    animation: cinematicIn .95s cubic-bezier(.2,.8,.2,1) .28s forwards,
+               float 4.2s ease-in-out infinite alternate 1.5s;
+  }
+
+  .image-3d:hover{
+    transform: translate3d(var(--tx,0), -6px, 0) rotateY(0deg) rotateX(0deg) scale(1.06);
+    box-shadow: 0 34px 80px rgba(0,0,0,.22);
     z-index: 30;
+    filter: saturate(1.08) contrast(1.06);
     animation-play-state: paused;
+  }
+
+  /* Glass */
+  .glass{
+    background: var(--glass);
+    border: 1px solid var(--glassBorder);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 20px;
+  }
+
+  /* Cards reveal */
+  .reveal-card{
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(7px);
+    transition: opacity .75s cubic-bezier(.2,.8,.2,1),
+                transform .75s cubic-bezier(.2,.8,.2,1),
+                filter .75s cubic-bezier(.2,.8,.2,1);
+    will-change: opacity, transform, filter;
+  }
+  .reveal-card.is-visible{
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .image-3d{ animation:none !important; opacity:1 !important; transform:none !important; }
+    .enter{ animation:none !important; }
+    .parallax-layer{ transform:none !important; }
+    .reveal-card{ opacity:1 !important; transform:none !important; filter:none !important; transition:none !important; }
+  }
+
+  /* Mobile tuning */
+  @media (max-width: 768px){
+    .stage{ height: 400px; }      /* ✅ more tight */
+    .image-3d{ bottom: 14px; }    /* ✅ up but not too high */
+    .base-glow{ bottom: 6px; width: 470px; height: 120px; }
+    .img-left{ --tx:-92px; }
+    .img-right{ --tx:92px; }
+  }
+  @media (max-width: 520px){
+    .stage{ height: 380px; }      /* ✅ more tight */
+    .image-3d{ bottom: 10px; }
+    .base-glow{ bottom: 5px; width: 430px; height: 115px; }
+    .img-left{ --tx:-78px; }
+    .img-right{ --tx:78px; }
   }
 </style>
 </head>
-<body>
 
-<div class="scale-wrapper">
-  <!-- Parallax background -->
-  <div class="parallax"></div>
+<body class="noise">
 
-  <section class="px-12 py-16 flex flex-row gap-12 relative z-10">
-  <!-- Left: Shop Info + Details -->
-  <div class="w-5/12 sticky top-10 self-start text-left space-y-6">
-    <h1 class="text-6xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg">
-      Tee Haven
-    </h1>
-    <p class="text-gray-700 text-xl leading-relaxed max-w-md">
-      ✨ Discover our <span class="font-semibold text-blue-600">premium t-shirt collection</span> crafted for ultimate comfort and style.
-    </p>
-    <button class="mt-6 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-2xl shadow-2xl hover:scale-105 hover:shadow-pink-300/50 transition-transform duration-300">
-      Shop Tees Now
-    </button>
-
-    <!-- Contact Section -->
-    <div class="pt-24 space-y-3 text-gray-700 text-base">
-      <h3 class="text-2xl font-bold text-gray-900 mb-4">📩 Contact Us</h3>
-      <p class="flex items-center gap-2">
-        🏬 <span class="font-medium">Location:</span> 123 Fashion Street, Dhaka, Bangladesh
-      </p>
-      <p class="flex items-center gap-2">
-        📞 <span class="font-medium">Phone:</span> +880 1234 567 890
-      </p>
-      <p class="flex items-center gap-2">
-        ✉️ <span class="font-medium">Email:</span> support@teeheaven.com
-      </p>
-    </div>
-  </div>
-
-  <!-- Right: Product 3D Preview -->
-  <div class="w-7/12 perspective relative h-[500px] flex justify-center items-end">
-    <div class="absolute top-16 right-12 p-6 w-80 text-gray-900 z-40">
-      <h3 class="text-xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-        Why Our Tees Are Special
-      </h3>
-      <p class="text-sm leading-relaxed mb-1">✨ Soft cotton t-shirts designed for all-day comfort</p>
-      <p class="text-sm leading-relaxed mb-1">🎨 Unique and stylish designs you won’t find anywhere else</p>
-      <p class="text-sm leading-relaxed mb-1">💎 Perfect fit for every body shape and size</p>
-      <p class="text-sm leading-relaxed">🧵 Durable fabric that stays vibrant wash after wash</p>
-    </div>
-
-    <img src="image/1.webp" alt="Left T-Shirt" class="image-3d image-left w-56 hover:scale-105 transition duration-500">
-    <img src="image/2.webp" alt="Center T-Shirt" class="image-3d image-center w-64 z-10 hover:scale-110 transition duration-500">
-    <img src="image/3.jpeg" alt="Right T-Shirt" class="image-3d image-right w-56 hover:scale-105 transition duration-500">
-  </div>
-</section>
-
-
-
-
-  <div class="relative z-20 px-12 mt-10 grid grid-cols-3 gap-8 max-w-6xl mx-auto">
-    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
-      <h3 class="text-xl font-semibold text-blue-600">Classic Tee</h3>
-      <p class="text-gray-600 mt-2">Soft cotton t-shirt perfect for daily wear. Available in multiple colors.</p>
-      <p class="mt-3 font-bold text-lg text-gray-800">$25.00</p>
-    </div>
-    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
-      <h3 class="text-xl font-semibold text-purple-600">Premium Hoodie</h3>
-      <p class="text-gray-600 mt-2">Stay cozy with our premium hoodie made with warm fleece inside.</p>
-      <p class="mt-3 font-bold text-lg text-gray-800">$49.00</p>
-    </div>
-    <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
-      <h3 class="text-xl font-semibold text-pink-600">Sporty Jacket</h3>
-      <p class="text-gray-600 mt-2">Lightweight sporty jacket for all weather. Stylish and durable.</p>
-      <p class="mt-3 font-bold text-lg text-gray-800">$65.00</p>
-    </div>
-  </div>
+<div class="parallax-wrap" aria-hidden="true">
+  <div class="parallax-layer layer-1" data-speed="0.22"></div>
+  <div class="parallax-layer layer-2" data-speed="0.12"></div>
 </div>
 
-<script>
-  // Scroll-based parallax
-  const parallax = document.querySelector('.parallax');
-  window.addEventListener('scroll', () => {
-    const offset = window.scrollY;
-    parallax.style.transform = `translateY(${offset * 0.3}px)`; 
-  });
+<main class="relative z-10">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-10 pb-2 lg:pb-10">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <!-- Left -->
+      <div class="lg:col-span-5 space-y-6 enter">
+        <div class="grid grid-cols-2 gap-4 lg:block">
+          <div class="col-span-1 lg:col-auto">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
+              Tee Haven
+            </h1>
+            <p class="mt-3 text-gray-700 text-base sm:text-lg leading-relaxed max-w-md">
+              ✨ Discover our <span class="font-semibold text-blue-700">premium t-shirt collection</span> crafted for ultimate comfort and style.
+            </p>
+            <button class="mt-5 inline-flex items-center justify-center px-7 py-3.5 rounded-2xl font-semibold text-white shadow-xl transition-transform duration-300 hover:scale-[1.03] active:scale-[0.99]"
+              style="background: linear-gradient(90deg, #2563eb, #7c3aed, #ec4899); box-shadow: 0 18px 44px rgba(124,58,237,.22);">
+              Shop Tees Now
+            </button>
+          </div>
 
-  // Auto scale wrapper
-  function scaleWrapper() {
-    const baseWidth = 1920; // desktop width
-    const scale = window.innerWidth / baseWidth;
-    document.querySelector('.scale-wrapper').style.transform = `scale(${scale})`;
-  }
-  window.addEventListener('resize', scaleWrapper);
-  window.addEventListener('load', scaleWrapper);
-</script>
+          <div class="col-span-1 lg:hidden glass p-4 enter enter-delay-1">
+            <h3 class="text-sm font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              Why Our Tees Are Special
+            </h3>
+            <ul class="mt-2 text-[12px] leading-relaxed text-gray-800 space-y-1">
+              <li>✨ Soft cotton for all-day comfort</li>
+              <li>🎨 Unique, stylish designs</li>
+              <li>💎 Perfect fit for all sizes</li>
+              <li>🧵 Durable, vibrant fabric</li>
+            </ul>
+          </div>
+        </div>
 
+        <div class="glass p-6 enter enter-delay-2">
+          <h3 class="text-lg font-bold text-gray-900 mb-3">📩 Contact Us</h3>
+          <div class="space-y-2 text-gray-700 text-sm sm:text-base">
+            <p class="flex items-start gap-2"><span>🏬</span><span><span class="font-medium">Location:</span> 123 Fashion Street, Dhaka, Bangladesh</span></p>
+            <p class="flex items-start gap-2"><span>📞</span><span><span class="font-medium">Phone:</span> +880 1234 567 890</span></p>
+            <p class="flex items-start gap-2"><span>✉️</span><span><span class="font-medium">Email:</span> support@teeheaven.com</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="lg:col-span-7 perspective enter enter-delay-1">
+        <div class="glass p-6 mb-6 hidden lg:block">
+          <h3 class="text-xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-2">
+            Why Our Tees Are Special
+          </h3>
+          <p class="text-sm leading-relaxed text-gray-800">✨ Soft cotton t-shirts designed for all-day comfort</p>
+          <p class="text-sm leading-relaxed text-gray-800">🎨 Unique and stylish designs you won’t find anywhere else</p>
+          <p class="text-sm leading-relaxed text-gray-800">💎 Perfect fit for every body shape and size</p>
+          <p class="text-sm leading-relaxed text-gray-800">🧵 Durable fabric that stays vibrant wash after wash</p>
+        </div>
+
+        <!-- ✅ stage id added -->
+        <div id="stage3d" class="stage">
+          <div class="base-glow"></div>
+
+          <img src="image/1.webp" alt="Left T-Shirt" class="image-3d img-left w-44 sm:w-52 lg:w-56" />
+          <img src="image/2.webp" alt="Center T-Shirt" class="image-3d img-center w-52 sm:w-60 lg:w-64" />
+          <img src="image/3.jpeg" alt="Right T-Shirt" class="image-3d img-right w-44 sm:w-52 lg:w-56" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="products" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pb-14 lg:pb-16 pt-2 lg:pt-0">
+    <div id="cardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+      <div class="glass p-6 transition-transform duration-300 hover:-translate-y-1 reveal-card">
+        <h3 class="text-xl font-semibold text-blue-700">Classic Tee</h3>
+        <p class="text-gray-700 mt-2">Soft cotton t-shirt perfect for daily wear. Available in multiple colors.</p>
+        <p class="mt-4 font-extrabold text-lg text-gray-900">$25.00</p>
+      </div>
+
+      <div class="glass p-6 transition-transform duration-300 hover:-translate-y-1 reveal-card">
+        <h3 class="text-xl font-semibold text-purple-700">Premium Hoodie</h3>
+        <p class="text-gray-700 mt-2">Stay cozy with our premium hoodie made with warm fleece inside.</p>
+        <p class="mt-4 font-extrabold text-lg text-gray-900">$49.00</p>
+      </div>
+
+      <div class="glass p-6 transition-transform duration-300 hover:-translate-y-1 reveal-card">
+        <h3 class="text-xl font-semibold text-pink-700">Sporty Jacket</h3>
+        <p class="text-gray-700 mt-2">Lightweight sporty jacket for all weather. Stylish and durable.</p>
+        <p class="mt-4 font-extrabold text-lg text-gray-900">$65.00</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="app.js" defer></script>
 </body>
 </html>
