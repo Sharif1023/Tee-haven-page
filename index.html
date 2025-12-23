@@ -68,10 +68,9 @@
   /* 3D stage */
   .perspective{ perspective: 1400px; position: relative; }
 
-  /* ✅ gap কমানোর জন্য stage height আরও কম */
   .stage{
     position: relative;
-    height: 450px; /* was 480/520 */
+    height: 450px;
     display:flex;
     justify-content:center;
     align-items:flex-end;
@@ -100,11 +99,8 @@
     border-radius: 18px;
     box-shadow: 0 18px 42px rgba(0,0,0,.16);
     position: absolute;
-
-    /* ✅ images উপরে: bottom বাড়ানো */
     bottom: 22px;
-
-    opacity: 0; /* animation start before visible */
+    opacity: 0;
     filter: saturate(1.02) contrast(1.02);
   }
 
@@ -118,7 +114,6 @@
     100%{ transform: translate3d(var(--tx,0), 0, 0) rotateY(var(--ry,0)) rotateX(var(--rx,0)); opacity:1; }
   }
 
-  /* ✅ variables only (animation will start when .stage.is-live added) */
   .img-left{
     --tx:-140px; --ry:-18deg; --rx:6deg;
     --fromx:-420px; --fromy:80px; --fromry:-60deg; --fromrx:18deg;
@@ -135,7 +130,6 @@
     z-index: 10;
   }
 
-  /* ✅ Animation starts only when stage becomes live */
   .stage.is-live .img-left{
     animation: cinematicIn .95s cubic-bezier(.2,.8,.2,1) forwards,
                float 4.2s ease-in-out infinite alternate 1s;
@@ -167,7 +161,7 @@
     border-radius: 20px;
   }
 
-  /* Cards reveal */
+  /* ✅ Cards reveal */
   .reveal-card{
     opacity: 0;
     transform: translateY(18px);
@@ -192,14 +186,14 @@
 
   /* Mobile tuning */
   @media (max-width: 768px){
-    .stage{ height: 400px; }      /* ✅ more tight */
-    .image-3d{ bottom: 14px; }    /* ✅ up but not too high */
+    .stage{ height: 400px; }
+    .image-3d{ bottom: 14px; }
     .base-glow{ bottom: 6px; width: 470px; height: 120px; }
     .img-left{ --tx:-92px; }
     .img-right{ --tx:92px; }
   }
   @media (max-width: 520px){
-    .stage{ height: 380px; }      /* ✅ more tight */
+    .stage{ height: 380px; }
     .image-3d{ bottom: 10px; }
     .base-glow{ bottom: 5px; width: 430px; height: 115px; }
     .img-left{ --tx:-78px; }
@@ -218,6 +212,7 @@
 <main class="relative z-10">
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-10 pb-2 lg:pb-10">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+
       <!-- Left -->
       <div class="lg:col-span-5 space-y-6 enter">
         <div class="grid grid-cols-2 gap-4 lg:block">
@@ -228,10 +223,13 @@
             <p class="mt-3 text-gray-700 text-base sm:text-lg leading-relaxed max-w-md">
               ✨ Discover our <span class="font-semibold text-blue-700">premium t-shirt collection</span> crafted for ultimate comfort and style.
             </p>
-            <button class="mt-5 inline-flex items-center justify-center px-7 py-3.5 rounded-2xl font-semibold text-white shadow-xl transition-transform duration-300 hover:scale-[1.03] active:scale-[0.99]"
+
+            <!-- ✅ ONLY CHANGE: go to shop.html -->
+            <a href="shop.html"
+              class="mt-5 inline-flex items-center justify-center px-7 py-3.5 rounded-2xl font-semibold text-white shadow-xl transition-transform duration-300 hover:scale-[1.03] active:scale-[0.99]"
               style="background: linear-gradient(90deg, #2563eb, #7c3aed, #ec4899); box-shadow: 0 18px 44px rgba(124,58,237,.22);">
               Shop Tees Now
-            </button>
+            </a>
           </div>
 
           <div class="col-span-1 lg:hidden glass p-4 enter enter-delay-1">
@@ -269,10 +267,8 @@
           <p class="text-sm leading-relaxed text-gray-800">🧵 Durable fabric that stays vibrant wash after wash</p>
         </div>
 
-        <!-- ✅ stage id added -->
         <div id="stage3d" class="stage">
           <div class="base-glow"></div>
-
           <img src="image/1.webp" alt="Left T-Shirt" class="image-3d img-left w-44 sm:w-52 lg:w-56" />
           <img src="image/2.webp" alt="Center T-Shirt" class="image-3d img-center w-52 sm:w-60 lg:w-64" />
           <img src="image/3.jpeg" alt="Right T-Shirt" class="image-3d img-right w-44 sm:w-52 lg:w-56" />
@@ -304,6 +300,6 @@
   </section>
 </main>
 
-<script src="app.js" defer></script>
+<script src="index.js" defer></script>
 </body>
 </html>
